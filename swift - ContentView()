@@ -1,0 +1,128 @@
+import SwiftUI
+
+// The dictionary that defines the layers of hell and the keywords associated with each layer.
+let layersOfHell: [String: [String]] = [
+    "Limbo": ["steal", "lie", "neglect", "indifference", "apathy", "aloofness", "disinterest"],
+    "The Lustful": ["adultery", "rape", "fornication", "promiscuity", "lechery", "licentiousness"],
+    "The Violent": ["kill", "wrath", "rage", "fury", "envy", "resentment"],
+    "The Gluttonous": ["overeat", "excess", "intemperance", "wastefulness", "gluttony"],
+    "The Angry": ["hate crime", "hate speech", "racism"],
+    "The Frauds": ["deception", "trickery", "lies", "manipulation", "deceit"],
+    "The Treacherous": ["treason", "perjury", "betrayal", "backstabbing", "treachery"],
+    "The Heresies": ["heresy", "blasphemy", "apostasy", "dissent", "nonconformity"],
+    "The Greedy": ["avarice", "greed", "covetousness", "acquisitiveness", "materialism"],
+]
+
+// The function that determines the layer of hell based on the user's name and sin.
+func determineLayer(name: String, sin: String) -> String? {
+    for (layer, keywords) in layersOfHell {
+        for keyword in keywords {
+            if name.contains(keyword) || sin.contains(keyword) {
+                return layer
+            }
+        }
+    }
+    return nil
+}
+
+// The view that represents the app's user interface.
+struct ContentView: View {
+    // The state variables that store the user's name and sin.
+    @State private var name = ""
+    @State private var sin = ""
+
+    // The computed variable that stores the result of determining the user's layer of hell.
+    var layer: String? {
+        determineLayer(name: name, sin: sin)
+    }
+
+    var body: some View {
+        VStack(alignment: .center, spacing: 32) {
+            // The logo image and the title of the app.
+            Image("logo")
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(maxWidth: 200, maxHeight: 200)
+            Text("Dante's Inferno")
+                .font(.largeTitle)
+                .foregroundColor(.red)
+                .bold()
+
+            // The label and text field for the user's name.
+            HStack {
+                Text("What is your name?")
+                    .font(.title)
+                    .foregroundColor(.secondary)
+                TextField("Enter your name", text: $name)
+                    .font(.title)
+                    .foregroundColor(.primary)
+                    .multilineTextAlignment(.trailing)
+                    .disableAutocorrection(true)
+            }
+
+            // The label and text field for the user's sin.
+            HStack {
+                Text("What is your sin?")
+                    .font(.title)
+                    .foregroundColor(.secondary)
+                TextField("Enter your sin", text: $sin)
+                    .font(.title)
+                    .foregroundColor(.primary)
+                    .multilineTextAlignment(.trailing)
+                    .disableAutocorrection(true)
+            }
+
+            // The label that displays the result of determining the user's layer of hell.
+            if let layer = layer {
+                Text("\(name), you have joined \(layer), enjoy hell.")
+                    .font(.title)
+                    .foregroundColor(.red)
+                    .bold()
+                    .multilineTextAlignment(.center)
+            }
+
+            // The button that allows the user to determine their layer of hell.
+            Button(action: {
+                // Determine the user's layer of hell and show an alert with the result.
+                let layer = determineLayer(name: self.name, sin: self.sin)
+                let title = layer == nil ? "Error" : "Result"
+                let message = layer == nil ? "Invalid name or sin" : "\(self.name), you have joined \(layer!), enjoy hell."
+                let alert = Alert(title: Text(title), message: Text(message), dismissButton: .default(Text("OK")))
+                self.showAlert = true
+                self.alert = alert
+            }) {
+                Text("Determine")
+                    .font(.title)
+                    .foregroundColor(.white)
+                    .frame(minWidth: 0, maxWidth: .infinity)
+                    .padding()
+                    .background(Color.red)
+                    .cornerRadius(8)
+            }
+            .disabled(name.isEmpty || sin.isEmpty)
+                        .alert(isPresented: $showAlert) {
+                            alert
+                        }
+                    }
+                    .background(
+                        Image("dantesinfernoIMAGE")
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .edgesIgnoringSafeArea(.all)
+                    )
+                    .padding()
+                }
+
+                // The state variables that store the alert and whether it should be shown.
+                @State private var showAlert = false
+                @State private var alert: Alert = Alert(title: Text("Error"), message: Text("Invalid name or sin"), dismissButton: .default(Text("OK")))
+            }
+
+            // The app's main function.
+            struct DanteInfernoApp: App {
+                var body: some Scene {
+                    WindowGroup {
+                        ContentView()
+                    }
+                }
+            }
